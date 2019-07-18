@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-edgex-support-scheduler
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-edgex-support-scheduler
+  ports:
+    - port: 48085
+      name: port-48085
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-edgex-support-scheduler
+  labels:
+    app: {{ .Release.Name }}-edgex-support-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-edgex-support-scheduler
+  template:
+    metadata:
+      name: edgex-support-scheduler
+      labels:
+        app: {{ .Release.Name }}-edgex-support-scheduler
+    spec:
+      containers:
+        - name: edgex-support-scheduler
+          image: nexus3.edgexfoundry.org:10004/docker-support-scheduler-go:1.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 48085
+          env:
+            - name: "edgex_registry"
+              value: consul://{{ .Release.Name }}-edgex-core-consul:8500
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48085
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48085
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-edgex-support-scheduler
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: scheduler.{{ .Release.Name }}
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: {{ .Release.Name }}-edgex-support-scheduler
+              servicePort: 48085

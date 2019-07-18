@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-edgex-config-seed
+  labels:
+    app: {{ .Release.Name }}-edgex-config-seed
+spec:
+  containers:
+    - name: edgex-config-seed
+      image: nexus3.edgexfoundry.org:10004/docker-core-config-seed-go:1.1.0
+      imagePullPolicy: Always
+      env:
+        - name: "edgex_registry"
+          value: consul://{{ .Release.Name }}-edgex-core-consul:8500
+        - name: "Registry_Host"
+          value: {{ .Release.Name }}-edgex-core-consul
+        - name: "Databases_Primary_Host"
+          value: {{ .Release.Name }}-edgex-mongo
+        - name: "Clients_Metadata_Host"
+          value: {{ .Release.Name }}-edgex-core-data
+        - name: "Clients_Notifications_Host"
+          value: {{ .Release.Name }}-edgex-support-notifications
+        - name: "Clients_Distro_Host"
+          value: {{ .Release.Name }}-edgex-export-distro
+        - name: "Clients_CoreData_Host"
+          value: {{ .Release.Name }}-edgex-core-data
+        - name: "Clients_Export_Host"
+          value: {{ .Release.Name }}-edgex-export-client
+        - name: "Clients_Logging_Host"
+          value: {{ .Release.Name }}-edgex-support-logging
+  restartPolicy: OnFailure
+  initContainers:
+    - name: init-consul
+      image: busybox:1.28
+      command: ['sh', '-c', 'sleep 20']

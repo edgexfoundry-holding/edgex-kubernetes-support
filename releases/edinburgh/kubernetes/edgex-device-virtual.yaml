@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgex-device-virtual
+spec:
+  selector:
+    app: edgex-device-virtual
+  ports:
+    - port: 49990
+      name: port-49990
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgex-device-virtual
+  labels:
+    app: edgex-device-virtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgex-device-virtual
+  template:
+    metadata:
+      name: edgex-device-virtual
+      labels:
+        app: edgex-device-virtual
+    spec:
+      containers:
+        - name: edgex-device-virtual
+          image: edgexfoundry/docker-device-virtual-go:1.0.0
+          ports:
+            - containerPort: 49990
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 49990
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 49990
+            initialDelaySeconds: 15
+            periodSeconds: 20

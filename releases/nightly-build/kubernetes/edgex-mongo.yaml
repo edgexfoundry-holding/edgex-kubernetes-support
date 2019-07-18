@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: edgex-mongo-volume
+  labels:
+    app: edgex-mongo-volume
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100M
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/mongo-volume"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: edgex-mongo-claim
+spec:
+  selector:
+    matchLabels:
+      app: edgex-mongo-volume
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100M
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgex-mongo
+spec:
+  selector:
+    app: edgex-mongo
+  ports:
+    - port: 27017
+      name: port-27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgex-mongo
+  labels:
+    app: edgex-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgex-mongo
+  template:
+    metadata:
+      name: edgex-mongo
+      labels:
+        app: edgex-mongo
+    spec:
+      volumes:
+        - name: mongo-volume
+          persistentVolumeClaim:
+            claimName: edgex-mongo-claim
+      containers:
+        - name: edgex-mongo
+          image: nexus3.edgexfoundry.org:10004/docker-edgex-mongo:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 27017
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-volume

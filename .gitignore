@@ -1,0 +1,88 @@
+### /.gitignore-boilerplates/Global/Eclipse.gitignore
+*.pydevproject
+.metadata
+bin/
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+*/target/**
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+### .gitignore-boilerplates/Global/OSX.gitignore
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+### .gitignore-boilerplates/Java.gitignore
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Maven
+log/
+target/
+
+
+# git repos
+core-command/
+core-config-seed/
+core-data-client/
+core-data/
+core-domain/
+core-exception/
+core-metadata-client/
+core-metadata/
+core-test/
+device-bacnet/
+device-bluetooth/
+device-modbus/
+device-mqtt/
+device-snmp/
+device-virtual/
+docker-core-config-seed/
+docker-core-consul/
+docker-edgex-mongo/
+docker-edgex-volume/
+export-client/
+export-distro/
+export-domain/
+export-test/
+support-domain/
+support-logging-client/
+support-logging/
+support-notifications-client/
+support-notifications/
+support-rulesengine/
+support-scheduler/

@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgex-support-rulesengine
+spec:
+  type: ClusterIP
+  selector:
+    app: edgex-support-rulesengine
+  ports:
+    - port: 48075
+      name: port-48075
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgex-support-rulesengine
+  labels:
+    app: edgex-support-rulesengine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgex-support-rulesengine
+  template:
+    metadata:
+      name: edgex-support-rulesengine
+      labels:
+        app: edgex-support-rulesengine
+    spec:
+      containers:
+        - name: edgex-support-rulesengine
+          image: nexus3.edgexfoundry.org:10004/docker-support-rulesengine:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 48075
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48075
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48075
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: edgex-support-rulesengine
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: rulesengine.k8s
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: edgex-support-rulesengine
+              servicePort: 48075

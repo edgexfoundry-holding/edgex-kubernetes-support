@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgex-export-client
+spec:
+  type: ClusterIP
+  selector:
+    app: edgex-export-client
+  ports:
+    - port: 48071
+      name: port-48071
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgex-export-client
+  labels:
+    app: edgex-export-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgex-export-client
+  template:
+    metadata:
+      name: edgex-export-client
+      labels:
+        app: edgex-export-client
+    spec:
+      containers:
+        - name: edgex-export-client
+          image: nexus3.edgexfoundry.org:10004/docker-export-client-go:1.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 48071
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48071
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48071
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: edgex-export-client
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: client.k8s
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: edgex-export-client
+              servicePort: 48071

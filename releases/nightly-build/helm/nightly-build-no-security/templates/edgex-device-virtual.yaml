@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-edgex-device-virtual
+spec:
+  selector:
+    app: {{ .Release.Name }}-edgex-device-virtual
+  ports:
+    - port: 49990
+      name: port-49990
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-edgex-device-virtual
+  labels:
+    app: {{ .Release.Name }}-edgex-device-virtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-edgex-device-virtual
+  template:
+    metadata:
+      name: edgex-device-virtual
+      labels:
+        app: {{ .Release.Name }}-edgex-device-virtual
+    spec:
+      containers:
+        - name: edgex-device-virtual
+          image: nexus3.edgexfoundry.org:10004/docker-device-virtual-go:1.1.0
+          imagePullPolicy: Always
+          command: ["/device-virtual"]
+          args: ["--profile=docker","--confdir=/res","--registry=ignoredValue"]
+          env:
+            - name: "edgex_registry_host"
+              value: {{ .Release.Name }}-edgex-core-consul
+            - name: "edgex_registry_port"
+              value: "8500"
+            - name: "edgex_registry_type"
+              value: "consul"
+            - name: "Registry_Host"
+              value: {{ .Release.Name }}-edgex-core-consul
+            - name: "Clients_Data_Host"
+              value: {{ .Release.Name }}-edgex-core-data
+            - name: "Clients_Metadata_Host"
+              value: {{ .Release.Name }}-edgex-core-metadata
+            - name: "Clients_Logging_Host"
+              value: {{ .Release.Name }}-edgex-support-logging
+          ports:
+            - containerPort: 49990
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 49990
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 49990
+            initialDelaySeconds: 15
+            periodSeconds: 20

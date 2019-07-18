@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgex-core-data
+spec:
+  type: ClusterIP
+  selector:
+    app: edgex-core-data
+  ports:
+    - port: 48080
+      name: port-48080
+    - port: 5563
+      name: port-5563
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgex-core-data
+  labels:
+    app: edgex-core-data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgex-core-data
+  template:
+    metadata:
+      name: edgex-core-data
+      labels:
+        app: edgex-core-data
+    spec:
+      containers:
+        - name: edgex-core-data
+          image: edgexfoundry/docker-core-data-go:1.0.0
+          ports:
+            - containerPort: 48080
+            - containerPort: 5563
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: edgex-core-data
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: data.k8s
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: edgex-core-data
+              servicePort: 48080

@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: edgex-support-logging-volume
+  labels:
+    app: edgex-support-logging-volume
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100M
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/support-logging-volume"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: edgex-support-logging-claim
+spec:
+  selector:
+    matchLabels:
+      app: edgex-support-logging-volume
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100M
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgex-support-logging
+spec:
+  type: ClusterIP
+  selector:
+    app: edgex-support-logging
+  ports:
+    - port: 48061
+      name: port-48061
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgex-support-logging
+  labels:
+    app: edgex-support-logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgex-support-logging
+  template:
+    metadata:
+      name: edgex-support-logging
+      labels:
+        app: edgex-support-logging
+    spec:
+      volumes:
+        - name: support-logging-volume
+          persistentVolumeClaim:
+            claimName: edgex-support-logging-claim
+      containers:
+        - name: edgex-support-logging
+          image: nexus3.edgexfoundry.org:10004/docker-support-logging-go:1.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 48061
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48061
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48061
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /edgex/logs
+              name: support-logging-volume
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: edgex-support-logging
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: logging.k8s
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: edgex-support-logging
+              servicePort: 48061

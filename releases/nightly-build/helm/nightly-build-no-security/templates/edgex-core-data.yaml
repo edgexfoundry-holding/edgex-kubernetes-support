@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-edgex-core-data
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-edgex-core-data
+  ports:
+    - port: 48080
+      name: port-48080
+    - port: 5563
+      name: port-5563
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-edgex-core-data
+  labels:
+    app: {{ .Release.Name }}-edgex-core-data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-edgex-core-data
+  template:
+    metadata:
+      name: edgex-core-data
+      labels:
+        app: {{ .Release.Name }}-edgex-core-data
+    spec:
+      containers:
+        - name: edgex-core-data
+          image: nexus3.edgexfoundry.org:10004/docker-core-data-go:1.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 48080
+            - containerPort: 5563
+          env:
+            - name: "edgex_registry"
+              value: consul://{{ .Release.Name }}-edgex-core-consul:8500
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-edgex-core-data
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: data.{{ .Release.Name }}
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: {{ .Release.Name }}-edgex-core-data
+              servicePort: 48080

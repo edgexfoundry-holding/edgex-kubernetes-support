@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-edgex-export-distro
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-edgex-export-distro
+  ports:
+    - port: 48070
+      name: port-48070
+    - port: 5566
+      name: port-5566
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-edgex-export-distro
+  labels:
+    app: {{ .Release.Name }}-edgex-export-distro
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-edgex-export-distro
+  template:
+    metadata:
+      name: edgex-export-distro
+      labels:
+        app: {{ .Release.Name }}-edgex-export-distro
+    spec:
+      containers:
+        - name: edgex-export-distro
+          image: nexus3.edgexfoundry.org:10004/docker-export-distro-go:1.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 48070
+            - containerPort: 5566
+          env:
+            - name: "edgex_registry"
+              value: consul://{{ .Release.Name }}-edgex-core-consul:8500
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48070
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: 48070
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-edgex-export-distro
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: distro.{{ .Release.Name }}
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: {{ .Release.Name }}-edgex-export-distro
+              servicePort: 48070
