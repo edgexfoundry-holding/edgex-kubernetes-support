@@ -160,7 +160,7 @@ The Nightly Build manifests and the Edinburgh Release manifests use the same nam
 
 Available releases include:
 
-* [`releases/nightly-build/heml/nightly-build-no-security`](https://github.com/edgexfoundry/developer-scripts/tree/master/releases/nightly-build/helm/nightly-build-no-security) 
+* [`releases/nightly-build/helm/nightly-build-no-security`](https://github.com/edgexfoundry/developer-scripts/tree/master/releases/nightly-build/helm/nightly-build-no-security) 
     contains a [Helm](https://helm.sh/) Chart that uses the latest EdgeX nightly build container images from the EdgeX 
     Nexus repository.  It does not include rules engine, security or system management support.  
 
