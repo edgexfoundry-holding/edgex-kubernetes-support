@@ -175,7 +175,7 @@ Available releases include:
 Available releases include:
 
 * [`releases/edinburgh/kubernetes/kustomization.yaml`](https://github.com/edgexfoundry/developer-scripts/tree/master/releases/edinburgh/kubernetes/kustomization.yaml) 
-    references service-specific Kubernetes manifest files that use EdgeX **Edinburgh release 1.0.0** container 
+    references service-specific Kubernetes manifest files that use EdgeX **Edinburgh release 1.0.1** container 
     images.  This kustomization file does not include security or system management support.  See the 
     [README.md](https://github.com/edgexfoundry/developer-scripts/tree/master/releases/edinburgh/kubernetes/README.md)
     for deployment details.
