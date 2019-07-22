@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: edgex-core-metadata
-          image: edgexfoundry/docker-core-metadata-go:1.0.0
+          image: edgexfoundry/docker-core-metadata-go:1.0.1
           ports:
             - containerPort: 48081
           readinessProbe:

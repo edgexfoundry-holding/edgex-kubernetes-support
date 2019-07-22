@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: edgex-support-notifications
-          image: edgexfoundry/docker-support-notifications-go:1.0.0
+          image: edgexfoundry/docker-support-notifications-go:1.0.1
           ports:
             - containerPort: 48060
           readinessProbe:

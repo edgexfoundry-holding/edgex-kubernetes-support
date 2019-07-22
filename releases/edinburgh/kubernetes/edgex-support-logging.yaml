@@ -63,7 +63,7 @@ spec:
             claimName: edgex-support-logging-claim
       containers:
         - name: edgex-support-logging
-          image: edgexfoundry/docker-support-logging-go:1.0.0
+          image: edgexfoundry/docker-support-logging-go:1.0.1
           ports:
             - containerPort: 48061
           readinessProbe:

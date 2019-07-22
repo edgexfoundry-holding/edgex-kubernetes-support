@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
     - name: edgex-config-seed
-      image: edgexfoundry/docker-core-config-seed-go:1.0.0
+      image: edgexfoundry/docker-core-config-seed-go:1.0.1
   restartPolicy: OnFailure
   initContainers:
     - name: init-consul

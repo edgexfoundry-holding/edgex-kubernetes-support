@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: edgex-export-client
-          image: edgexfoundry/docker-export-client-go:1.0.0
+          image: edgexfoundry/docker-export-client-go:1.0.1
           ports:
             - containerPort: 48071
           readinessProbe:

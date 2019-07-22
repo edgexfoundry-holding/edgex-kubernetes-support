@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: edgex-export-distro
-          image: edgexfoundry/docker-export-distro-go:1.0.0
+          image: edgexfoundry/docker-export-distro-go:1.0.1
           ports:
             - containerPort: 48070
             - containerPort: 5566
