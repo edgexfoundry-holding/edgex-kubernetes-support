@@ -62,7 +62,7 @@ spec:
             claimName: edgex-mongo-claim
       containers:
         - name: edgex-mongo
-          image: nexus3.edgexfoundry.org:10004/docker-edgex-mongo:1.0.0
+          image: nexus3.edgexfoundry.org:10004/docker-edgex-mongo:1.1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 27017
