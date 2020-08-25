@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: edgex-core-command
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: edgex-core-command
   ports:
