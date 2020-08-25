@@ -33,6 +33,7 @@ kind: Service
 metadata:
   name: edgex-core-consul
 spec:
+  type: NodePort
   selector:
     app: edgex-core-consul
   ports:
