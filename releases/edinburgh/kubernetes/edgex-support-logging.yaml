@@ -33,7 +33,7 @@ kind: Service
 metadata:
   name: edgex-support-logging
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: edgex-support-logging
   ports:
