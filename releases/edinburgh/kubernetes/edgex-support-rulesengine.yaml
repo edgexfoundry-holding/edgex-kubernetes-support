@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: edgex-support-rulesengine
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: edgex-support-rulesengine
   ports:
